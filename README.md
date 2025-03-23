@@ -1,3 +1,7 @@
+# Fork
+
+Forked from https://github.com/ryanluker/vscode-coverage-gutters/ to display execution counts".
+
 # coverage-gutters
 
 ![Version](https://img.shields.io/visual-studio-marketplace/v/ryanluker.vscode-coverage-gutters)

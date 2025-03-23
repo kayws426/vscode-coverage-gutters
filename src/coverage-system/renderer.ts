@@ -2,11 +2,13 @@ import { Section } from "lcov-parse";
 import {
     Range,
     TextEditor,
+    ThemeColor,
 } from "vscode";
 import { Config } from "../extension/config";
 import { SectionFinder } from "./sectionfinder";
 
 export interface ICoverageLines {
+    full_decorations: Range[];
     full: Range[];
     partial: Range[];
     none: Range[];
@@ -34,6 +36,7 @@ export class Renderer {
         textEditors: readonly TextEditor[],
     ) {
         const coverageLines: ICoverageLines = {
+            full_decorations: [],
             full: [],
             none: [],
             partial: [],
@@ -46,6 +49,7 @@ export class Renderer {
 
         textEditors.forEach((textEditor) => {
             // Reset lines for new editor
+            coverageLines.full_decorations = [];
             coverageLines.full = [];
             coverageLines.none = [];
             coverageLines.partial = [];
@@ -82,7 +86,7 @@ export class Renderer {
         // set new coverage on editor
         editor.setDecorations(
             this.configStore.fullCoverageDecorationType,
-            coverage.full,
+            coverage.full_decorations,
         );
         editor.setDecorations(
             this.configStore.noCoverageDecorationType,
@@ -126,6 +130,19 @@ export class Renderer {
                     coverageLines.none = coverageLines.none.filter((range) => !range.isEqual(lineRange))
                 }
                 coverageLines.full.push(lineRange);
+
+                let text = `    ${detail.hit.toLocaleString()}x`;
+                const decoration = {
+                    range: lineRange,
+                    renderOptions: {
+                        after: {
+                            contentText: text,
+                            color: new ThemeColor("editorCodeLens.foreground"),
+                            fontStyle: "italic",
+                        },
+                    },
+                };
+                coverageLines.full_decorations.push(decoration);
             } else {
                 if (!coverageLines.full.some((range) => range.isEqual(lineRange))) {
                     // only add a none coverage if no full ones exist
